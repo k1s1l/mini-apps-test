@@ -13,5 +13,9 @@ s = min(w, h)
 left = (w - s) // 2
 top = int((h - s) * 0.45)
 im = im.crop((left, top, left + s, top + s)).resize((900, 900), Image.LANCZOS)
-im.save(out, quality=80, optimize=True, progressive=True)
+# Тримаємо файл до ~160 КБ, щоб магазин швидко відкривався в Telegram.
+for q in (80, 72, 64, 56):
+    im.save(out, quality=q, optimize=True, progressive=True)
+    if os.path.getsize(out) <= 160 * 1024:
+        break
 print(key, f'{os.path.getsize(out) // 1024} KB')

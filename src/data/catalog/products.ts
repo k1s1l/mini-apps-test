@@ -58,6 +58,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'louis-vuitton-moon-tale',
+    images: ['louis-vuitton-moon-tale'],
     subcategoryIds: [],
     brand: 'Louis Vuitton',
     name: 'Louis Vuitton Moon Tale',
@@ -68,30 +69,41 @@ export const catalogProducts: Product[] = [
       'Малина розкриває композицію разом з щедрим букетом найпрекрасніших квітів Китаю. У базовій ноті мускуси створюють ефірну завісу з косметичними акцентами. ' +
       'Парфуми, що нагадують останній жест перед тим, як вийти у світло серед бурхливої енергії ночі.',
     price: 2099,
-    attributes: [],
+    attributes: [
+      // З упаковки на фото: Eau de Parfum, 100 ml
+      { label: 'Тип', value: 'Парфумована вода (EDP)' },
+      { label: "Об'єм", value: '100 мл' },
+    ],
     stock: 'in_stock',
     tags: [],
     addedAt: '2026-10-19T13:04',
   }),
   perfume({
     id: 'hormone-paris-this-is-not-caffeine',
+    images: ['hormone-paris-this-is-not-caffeine'],
     subcategoryIds: [],
     brand: 'Hormone Paris',
     name: 'Hormone Paris This is not Caffeine',
     shortDescription: 'Карамель, кориця · чорна кава, імбир · ваніль, шкіра',
     description: '',
     price: 1499,
-    attributes: notes(
+    attributes: [
+      // З упаковки на фото: Parfum, 100 ml
+      { label: 'Тип', value: 'Parfum' },
+      { label: "Об'єм", value: '100 мл' },
+      ...notes(
       'Карамель, кориця, шавлія, кокос, м’ята',
       'Боби тонка, імбир, чорна кава, нагармота (циперіол), жасмин',
       'Ваніль, бензоїн, сіра амбра, шкіра, кедр',
-    ),
+      ),
+    ],
     stock: 'in_stock',
     tags: [],
     addedAt: '2026-10-20T09:18',
   }),
   perfume({
     id: 'tom-ford-vanilla-sex',
+    images: ['tom-ford-vanilla-sex'],
     subcategoryIds: ['unisex', 'sweet'],
     brand: 'Tom Ford',
     name: 'Tom Ford Vanilla Sex',
@@ -103,6 +115,9 @@ export const catalogProducts: Product[] = [
     price: 999,
     attributes: [
       { label: 'Стать', value: 'Унісекс' },
+      // З етикетки на фото: Eau de Parfum, 100 ml
+      { label: 'Тип', value: 'Парфумована вода (EDP)' },
+      { label: "Об'єм", value: '100 мл' },
       ...notes('Гіркий мигдаль', 'Ванільна настоянка, білі квіти, жасмин', 'Абсолют ванілі, сандал, боби тонка, пудрові ноти'),
     ],
     stock: 'in_stock',
@@ -111,6 +126,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'kayali-elixir-11',
+    images: ['kayali-elixir-11'],
     subcategoryIds: ['women'],
     brand: 'Kayali',
     name: 'Kayali Elixir | 11',
@@ -127,6 +143,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'ysl-y',
+    images: ['ysl-y'],
     subcategoryIds: ['men', 'fresh'],
     brand: 'Yves Saint Laurent',
     name: 'Yves Saint Laurent Y',
@@ -138,6 +155,9 @@ export const catalogProducts: Product[] = [
       'У базі — амбра, боби тонка та деревина, які створюють глибокий, чоловічний шлейф із відтінком елегантності.',
     price: 1199,
     attributes: [
+      // З упаковки на фото: Eau de Parfum, 100 ml
+      { label: 'Тип', value: 'Парфумована вода (EDP)' },
+      { label: "Об'єм", value: '100 мл' },
       { label: 'Тип аромату', value: 'Ароматичні, фужерні' },
       ...notes(
         'Імбир, бергамот, яблуко',
