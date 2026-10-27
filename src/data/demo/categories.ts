@@ -1,0 +1,75 @@
+import type { Category } from '../types';
+
+export const demoCategories: Category[] = [
+  {
+    id: 'sneakers',
+    name: 'Кросівки',
+    tagline: 'Повсякденні, спортивні, міські',
+    image: 'snk-campus-navy',
+    filterOptions: ['size', 'color'],
+    subcategories: [
+      { id: 'casual', name: 'Повсякденні кросівки' },
+      { id: 'sport', name: 'Спортивні кросівки' },
+      { id: 'urban', name: 'Міські моделі' },
+      { id: 'popular', name: 'Популярні моделі', byTag: 'popular' },
+      { id: 'new', name: 'Новинки', byTag: 'new' },
+    ],
+  },
+  {
+    id: 'clothing',
+    name: 'Одяг',
+    tagline: 'Базові речі та верхній одяг',
+    image: 'jacket-1',
+    filterOptions: ['size', 'color'],
+    subcategories: [
+      { id: 'tshirts', name: 'Футболки' },
+      { id: 'hoodies', name: 'Худі та світшоти' },
+      { id: 'jackets', name: 'Куртки' },
+      { id: 'pants', name: 'Штани' },
+      { id: 'sportswear', name: 'Спортивний одяг' },
+      { id: 'other', name: 'Інші речі' },
+    ],
+  },
+  {
+    id: 'perfume',
+    name: 'Парфумерія',
+    tagline: 'Чоловічі, жіночі, унісекс',
+    image: 'pf-bois-noir',
+    filterOptions: ['volume'],
+    subcategories: [
+      { id: 'men', name: 'Чоловічі аромати' },
+      { id: 'women', name: 'Жіночі аромати' },
+      { id: 'unisex', name: 'Унісекс' },
+      { id: 'fresh', name: 'Свіжі аромати' },
+      { id: 'woody', name: 'Деревні аромати' },
+      { id: 'sweet', name: 'Солодкі аромати' },
+    ],
+  },
+  {
+    id: 'watches',
+    name: 'Годинники',
+    tagline: 'Класичні та спортивні моделі',
+    image: 'watch-mg03',
+    filterOptions: ['strap', 'color'],
+    subcategories: [
+      { id: 'classic', name: 'Класичні годинники' },
+      { id: 'sport', name: 'Спортивні годинники' },
+      { id: 'casual', name: 'Повсякденні моделі' },
+      { id: 'minimal', name: 'Мінімалістичні моделі' },
+    ],
+  },
+  {
+    id: 'accessories',
+    name: 'Аксесуари',
+    tagline: 'Сумки, гаманці, окуляри',
+    image: 'bag-backpack-grey',
+    filterOptions: ['color', 'size'],
+    subcategories: [
+      { id: 'bags', name: 'Сумки' },
+      { id: 'wallets', name: 'Гаманці' },
+      { id: 'belts', name: 'Ремені' },
+      { id: 'eyewear', name: 'Окуляри' },
+      { id: 'other', name: 'Інші аксесуари' },
+    ],
+  },
+];
