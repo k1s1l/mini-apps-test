@@ -137,3 +137,11 @@ function sizeOrder(a: { label: string }, b: { label: string }) {
   if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
   return 0;
 }
+
+/** Новинки: позначені тегом «new», а якщо їх мало — доповнюємо найсвіжішими за датою. */
+export function newestProducts(products: Product[], min = 4) {
+  const avail = products.filter((p) => p.stock !== 'out_of_stock');
+  const tagged = sortProducts(avail.filter((p) => p.tags.includes('new')), 'new');
+  if (tagged.length >= min) return tagged;
+  return [...tagged, ...sortProducts(avail.filter((p) => !p.tags.includes('new')), 'new')];
+}

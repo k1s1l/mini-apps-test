@@ -101,7 +101,7 @@ export function QuickAddSheet() {
       }
     >
       <div className="qa-head">
-        <ProductImage src={product.images[colorIdx ?? 0]} alt={product.name} className="qa-img" />
+        <ProductImage src={product.images[colorIdx ?? 0]} alt={product.name} brand={product.brand} className="qa-img" />
         <div>
           <span className="card-brand">{product.brand}</span>
           <h3 className="qa-name">{product.name}</h3>

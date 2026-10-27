@@ -24,7 +24,7 @@ export const ProductCard = memo(function ProductCard({ product: p, variant = 'gr
   return (
     <article className={`card card-${variant} ${oos ? 'is-oos' : ''}`}>
       <button className="card-media" onClick={open} aria-label={`${p.brand} ${p.name}`}>
-        <ProductImage src={p.images[0]} alt={p.name} />
+        <ProductImage src={p.images[0]} alt={p.name} brand={p.brand} />
         <div className="card-badges">
           {off > 0 && <span className="badge badge-sale">−{off}%</span>}
           {p.tags.includes('new') && <span className="badge">Новинка</span>}

@@ -6,7 +6,6 @@ import { useCategories, useProducts } from '../store/catalog';
 import { useNav } from '../store/nav';
 import { useShop } from '../store/shop';
 
-const suggestions = ['Кросівки', 'Adidas', 'Худі', 'Деревні аромати', 'Рюкзак', 'Годинник'];
 
 export function SearchScreen({ initial }: { initial?: string }) {
   const products = useProducts();
@@ -35,6 +34,13 @@ export function SearchScreen({ initial }: { initial?: string }) {
     const t = setTimeout(() => addRecent(query), 1200);
     return () => clearTimeout(t);
   }, [query, addRecent]);
+
+  // Підказки — найчастіші бренди каталогу.
+  const suggestions = useMemo(() => {
+    const count = new Map<string, number>();
+    for (const p of products) count.set(p.brand, (count.get(p.brand) ?? 0) + 1);
+    return [...count.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([b]) => b);
+  }, [products]);
 
   const results = useMemo(() => searchProducts(products, categories, query), [products, categories, query]);
   const matchedCats = useMemo(() => {

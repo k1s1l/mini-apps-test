@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Icon } from '../components/Icon';
 import { ProductCard } from '../components/ProductCard';
 import { EmptyState, TopBar } from '../components/ui';
-import { shopConfig } from '../config/shop';
+import { managerUrl, shopConfig } from '../config/shop';
 import { formatPrice, itemsLabel } from '../lib/format';
 import { telegram } from '../services/telegram';
 import { useProducts } from '../store/catalog';
@@ -79,7 +79,7 @@ export function ProfileScreen() {
   const c = shopConfig.contacts;
   const contacts = [
     { icon: 'phone', label: 'Телефон', value: c.phone },
-    { icon: 'send', label: 'Telegram', value: c.telegram },
+    { icon: 'send', label: 'Менеджер', value: c.telegram, url: managerUrl() },
     { icon: 'mail', label: 'Ел. пошта', value: c.email },
     { icon: 'clock', label: 'Графік роботи', value: c.hours },
   ].filter((x) => x.value);
@@ -138,7 +138,13 @@ export function ProfileScreen() {
               <li key={x.label}>
                 <Icon name={x.icon} size={20} />
                 <span>{x.label}</span>
-                <b>{x.value}</b>
+                {'url' in x && x.url ? (
+                  <a href={x.url} onClick={(e) => { e.preventDefault(); telegram.openLink(x.url!); }}>
+                    {x.value}
+                  </a>
+                ) : (
+                  <b>{x.value}</b>
+                )}
               </li>
             ))}
           </ul>
@@ -150,30 +156,21 @@ export function ProfileScreen() {
         )}
       </section>
 
-      <section className="co-section">
-        <h2>Корисне</h2>
-        <ul className="faq">
-          <li>
-            <Icon name="truck" size={20} />
-            <div>
-              <b>Доставка</b>
-              <span>Нова пошта (відділення та поштомати), Укрпошта, кур’єр.</span>
-            </div>
-          </li>
-          <li>
-            <Icon name="shield" size={20} />
-            <div>
-              <b>Оплата</b>
-              <span>Зараз — при отриманні. Онлайн-оплату буде додано пізніше.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
+      {shopConfig.reviewsUrl && (
+        <section className="co-section">
+          <h2>Відгуки</h2>
+          <button className="info-box info-link" onClick={() => telegram.openLink(shopConfig.reviewsUrl)}>
+            <Icon name="sparkle" size={22} />
+            <p>Відгуки покупців у нашому Telegram-каналі</p>
+            <Icon name="chevron" size={18} />
+          </button>
+        </section>
+      )}
 
       <button className="btn btn-outline btn-block" onClick={() => switchTab('catalog')}>
         Повернутися до каталогу
       </button>
-      <p className="version">{shopConfig.name} · демоверсія 0.1</p>
+      <p className="version">{shopConfig.name} · версія 0.2</p>
     </div>
   );
 }

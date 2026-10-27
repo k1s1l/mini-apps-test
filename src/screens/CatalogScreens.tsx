@@ -3,7 +3,7 @@ import { Icon } from '../components/Icon';
 import { ProductBrowser } from '../components/ProductBrowser';
 import { EmptyState, ProductImage, TopBar } from '../components/ui';
 import type { ProductTag } from '../data/types';
-import { inSubcategory } from '../lib/filter';
+import { inSubcategory, newestProducts } from '../lib/filter';
 import { itemsLabel } from '../lib/format';
 import { useCategories, useProducts } from '../store/catalog';
 import { useNav } from '../store/nav';
@@ -28,7 +28,7 @@ export function CatalogScreen() {
           return (
             <section key={c.id} className="catalog-cat">
               <button className="catalog-cat-head" onClick={() => push({ name: 'category', categoryId: c.id })}>
-                <ProductImage src={c.image} alt={c.name} className="catalog-cat-img" />
+                <ProductImage src={c.image || undefined} alt={c.name} className="catalog-cat-img" />
                 <div className="catalog-cat-text">
                   <h2>{c.name}</h2>
                   <p>{c.tagline}</p>
@@ -117,7 +117,7 @@ const collectionTitles: Record<ProductTag, string> = {
 export function CollectionScreen({ tag }: { tag: ProductTag }) {
   const all = useProducts();
   const back = useNav((s) => s.back);
-  const products = useMemo(() => all.filter((p) => p.tags.includes(tag)), [all, tag]);
+  const products = useMemo(() => (tag === 'new' ? newestProducts(all) : all.filter((p) => p.tags.includes(tag))), [all, tag]);
   return (
     <div className="screen">
       <TopBar title={collectionTitles[tag]} onBack={back} />

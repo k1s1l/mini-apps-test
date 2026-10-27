@@ -5,7 +5,7 @@ const { chromium } = createRequire(import.meta.url)('playwright'); // встан
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../src/assets/products');
+const OUT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../src/data/demo/images');
 
 const bottles = [
   { key: 'pf-bois-noir', w: 250, h: 300, rx: 18, liquid: ['#1a1714', '#3b332b', '#120f0d'], glass: 0.55, cap: ['#0d0d0d', '#3a3a3a', '#0d0d0d'], capW: 150, capH: 120, capRx: 10, label: '#c9b48a', brand: 'ATELIER NORD', name: 'BOIS NOIR', fill: 0.92 },

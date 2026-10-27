@@ -1,9 +1,9 @@
 // Перетворює ключ зображення з каталогу на URL.
-// Ключ «snk-mid» → локальний файл src/assets/products/snk-mid.jpg.
+// Ключ «tf-ombre-leather» → локальний файл src/assets/catalog/tf-ombre-leather.jpg.
 // Повний URL (https://…) повертається без змін — так можна підключити фото
 // зі сховища або CDN, коли з'явиться справжній каталог.
 
-const local = import.meta.glob('../assets/products/*.{jpg,jpeg,png,webp}', {
+const local = import.meta.glob('../assets/catalog/*.{jpg,jpeg,png,webp}', {
   eager: true,
   import: 'default',
 }) as Record<string, string>;

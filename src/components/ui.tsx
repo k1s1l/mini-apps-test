@@ -5,9 +5,27 @@ import { imageUrl } from '../data/images';
 import { discountPercent, formatPrice } from '../lib/format';
 import { Icon } from './Icon';
 
-export function ProductImage({ src, alt, className }: { src?: string; alt: string; className?: string }) {
+interface ProductImageProps {
+  src?: string;
+  alt: string;
+  className?: string;
+  /** Підпис для заглушки, коли фото ще немає (бренд над назвою). */
+  brand?: string;
+}
+
+export function ProductImage({ src, alt, className, brand }: ProductImageProps) {
   const [state, setState] = useState<'loading' | 'ok' | 'error'>('loading');
   const url = imageUrl(src);
+  if (!src)
+    return (
+      <div className={`pimg is-empty ${className ?? ''}`} role="img" aria-label={`${alt} — фото незабаром`}>
+        <div className="pimg-plate">
+          {brand && <span className="pimg-brand">{brand}</span>}
+          <span className="pimg-name">{brand && alt.startsWith(brand) ? alt.slice(brand.length).trim() || alt : alt}</span>
+          <span className="pimg-soon">фото незабаром</span>
+        </div>
+      </div>
+    );
   return (
     <div className={`pimg ${className ?? ''} is-${url ? state : 'error'}`}>
       {url && state !== 'error' && (

@@ -122,7 +122,7 @@ function CartRow({ line }: { line: CartLine }) {
   return (
     <article className={`cart-row ${line.available ? '' : 'is-unavailable'}`}>
       <button className="cart-row-img" onClick={() => push({ name: 'product', productId: p.id })} aria-label={p.name}>
-        <ProductImage src={p.images[colorIdx ?? 0]} alt={p.name} />
+        <ProductImage src={p.images[colorIdx ?? 0]} alt={p.name} brand={p.brand} />
       </button>
       <div className="cart-row-main">
         <span className="card-brand">{p.brand}</span>

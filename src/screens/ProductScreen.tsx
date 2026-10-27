@@ -10,6 +10,8 @@ import { addProductToCart, toggleFavorite } from '../store/actions';
 import { useCategories, useProduct, useProducts } from '../store/catalog';
 import { useNav } from '../store/nav';
 import { useShop, MAX_QTY } from '../store/shop';
+import { managerUrl, shopConfig } from '../config/shop';
+import { telegram } from '../services/telegram';
 
 export function ProductScreen({ productId }: { productId: string }) {
   const product = useProduct(productId);
@@ -86,9 +88,13 @@ export function ProductScreen({ productId }: { productId: string }) {
             setSlide(Math.round(el.scrollLeft / el.clientWidth));
           }}
         >
-          {p.images.map((img, i) => (
-            <ProductImage key={img + i} src={img} alt={`${p.name}, фото ${i + 1}`} className="pd-slide" />
-          ))}
+          {p.images.length ? (
+            p.images.map((img, i) => (
+              <ProductImage key={img + i} src={img} alt={`${p.name}, фото ${i + 1}`} className="pd-slide" />
+            ))
+          ) : (
+            <ProductImage alt={p.name} brand={p.brand} className="pd-slide" />
+          )}
         </div>
         <div className="pd-float">
           <button className="icon-btn glass" onClick={back} aria-label="Назад">
@@ -136,10 +142,12 @@ export function ProductScreen({ productId }: { productId: string }) {
         )}
         {complete && !comboOk && !oos && <p className="field-error">Такого поєднання зараз немає. Оберіть інший варіант.</p>}
 
-        <section className="pd-section">
-          <h2>Опис</h2>
-          <p>{p.description}</p>
-        </section>
+        {p.description && (
+          <section className="pd-section">
+            <h2>Опис</h2>
+            <p className="pd-desc">{p.description}</p>
+          </section>
+        )}
 
         <section className="pd-section">
           <h2>Характеристики</h2>
@@ -168,16 +176,29 @@ export function ProductScreen({ productId }: { productId: string }) {
           </dl>
         </section>
 
-        <ul className="pd-perks">
-          <li>
-            <Icon name="truck" size={20} />
-            Доставка Новою поштою, Укрпоштою або кур’єром
-          </li>
-          <li>
-            <Icon name="refresh" size={20} />
-            Умови обміну та повернення буде додано до запуску магазину
-          </li>
-        </ul>
+        {(managerUrl() || shopConfig.reviewsUrl) && (
+          <ul className="pd-perks">
+            {managerUrl() && (
+              <li>
+                <Icon name="send" size={20} />
+                <span>
+                  Питання щодо аромату? Напишіть менеджеру{' '}
+                  <a href={managerUrl()} onClick={(e) => { e.preventDefault(); telegram.openLink(managerUrl()); }}>
+                    {shopConfig.contacts.telegram}
+                  </a>
+                </span>
+              </li>
+            )}
+            {shopConfig.reviewsUrl && (
+              <li>
+                <Icon name="sparkle" size={20} />
+                <a href={shopConfig.reviewsUrl} onClick={(e) => { e.preventDefault(); telegram.openLink(shopConfig.reviewsUrl); }}>
+                  Відгуки покупців
+                </a>
+              </li>
+            )}
+          </ul>
+        )}
 
         {similar.length > 0 && (
           <section className="home-section flush">

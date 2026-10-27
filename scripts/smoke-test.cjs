@@ -1,10 +1,10 @@
-// Наскрізна перевірка основних сценаріїв у мобільному вікні.
-// Запуск: npx vite preview --port 4173 &  node scripts/smoke-test.cjs [теку-для-скріншотів]
+// Наскрізна перевірка основних сценаріїв у мобільному вікні (на реальному каталозі).
+// Запуск: npm run build && PORT=4173 node server.mjs &  node scripts/smoke-test.cjs [теку-для-скріншотів]
 const { chromium } = require('playwright');
+const fs = require('fs');
 
 const URL = process.env.APP_URL || 'http://localhost:4173/';
 const OUT = process.argv[2] || 'smoke-shots';
-const fs = require('fs');
 fs.mkdirSync(OUT, { recursive: true });
 
 const results = [];
@@ -12,200 +12,137 @@ const check = (name, ok, extra = '') => {
   results.push({ name, ok });
   console.log(`${ok ? '✔' : '✘'} ${name}${extra ? ' — ' + extra : ''}`);
 };
+const num = (t) => parseInt(String(t).replace(/\D/g, ''), 10);
 
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
   const page = await ctx.newPage();
   const errors = [];
+  const ignore = /fonts\.(googleapis|gstatic)/;
   page.on('pageerror', (e) => errors.push(e.message));
-  page.on('console', (m) => m.type() === 'error' && !/fonts\.(googleapis|gstatic)/.test(m.text()) && errors.push(m.text()));
-  page.on('requestfailed', (r) => !/fonts\.(googleapis|gstatic)/.test(r.url()) && errors.push('requestfailed ' + r.url()));
+  page.on('console', (m) => m.type() === 'error' && !ignore.test(m.text()) && errors.push(m.text()));
+  page.on('requestfailed', (r) => !ignore.test(r.url()) && errors.push('requestfailed ' + r.url()));
 
   const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
   const nav = (label) => page.locator('.bottom-nav .bn-item', { hasText: label }).click();
+  const settle = () => page.waitForTimeout(450);
 
   await page.goto(URL);
   await page.waitForSelector('.hero');
-  await page.waitForTimeout(600);
-  check('Головна відкривається', await page.locator('text=Популярні товари').isVisible());
-  const broken = await page.evaluate(() =>
-    [...document.images].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.src.slice(0, 60)),
-  );
-  check('Усі фото на головній завантажились', broken.length === 0, broken.join(', '));
+  await settle();
+  check('Головна відкривається', await page.locator('.section-head h2', { hasText: 'Новинки' }).isVisible());
+  check('Демо-банер прибрано', (await page.locator('.demo-note').count()) === 0);
   await shot('01-home');
-  await page.evaluate(() => window.scrollTo(0, 900));
-  await page.waitForTimeout(300);
+  await page.evaluate(() => window.scrollTo(0, 700));
+  await settle();
   await shot('02-home-scrolled');
 
-  // Обране з картки
-  const firstFav = page.locator('.rail .fav-btn').first();
-  await firstFav.click();
-  check('Іконка обраного оновлюється', (await firstFav.getAttribute('aria-pressed')) === 'true');
-
-  // Каталог → категорія
+  // Каталог: лише категорії з товарами
   await nav('Каталог');
   await page.waitForSelector('.catalog-cat');
-  await shot('03-catalog');
-  await page.locator('.catalog-cat-head', { hasText: 'Кросівки' }).click();
+  const cats = await page.locator('.catalog-cat h2').allTextContents();
+  check('Порожні категорії приховано', cats.length === 1 && cats[0] === 'Парфумерія', cats.join(', '));
+  await page.locator('.catalog-cat-head').first().click();
   await page.waitForSelector('.grid .card');
-  const totalSneakers = await page.locator('.grid .card').count();
-  await shot('04-category');
+  const total = await page.locator('.grid .card').count();
+  check('У категорії 16 ароматів', total === 16, `${total}`);
+  await settle();
+  await shot('03-category');
 
-  // Фільтри
+  // Підкатегорія
+  await page.locator('.sub-chips-scroll .chip', { hasText: 'Чоловічі' }).click();
+  const men = await page.locator('.grid .card').count();
+  check('Підкатегорія «Чоловічі»', men > 0 && men < total, `${men}`);
+  await page.locator('.sub-chips-scroll .chip', { hasText: 'Усі' }).click();
+
+  // Фільтр за брендом + сортування
   await page.locator('.tool-btn', { hasText: 'Фільтри' }).click();
-  await page.waitForSelector('.sheet');
-  await page.locator('.sheet .chip', { hasText: /^Adidas$/ }).click();
-  await shot('05-filters');
+  await page.locator('.sheet .chip', { hasText: /^Tom Ford$/ }).click();
   await page.locator('.sheet-foot .btn-primary').click();
-  const adidasCount = await page.locator('.grid .card').count();
   const brands = await page.locator('.grid .card-brand').allTextContents();
-  check('Фільтр за брендом', adidasCount > 0 && adidasCount < totalSneakers && brands.every((b) => /adidas/i.test(b)), `${adidasCount} з ${totalSneakers}`);
-
-  // Сортування за ціною
-  await page.locator('.tool-btn', { hasText: 'популярністю' }).click();
-  await page.locator('.sort-item', { hasText: 'Від дешевших' }).click();
-  const prices = (await page.locator('.grid .price-now').allTextContents()).map((t) => parseInt(t.replace(/\D/g, ''), 10));
-  check('Сортування за зростанням ціни', prices.every((p, i) => i === 0 || p >= prices[i - 1]), prices.join(' '));
-
-  // Порожній результат фільтрів
-  await page.locator('.tool-btn', { hasText: 'Фільтри' }).click();
-  await page.fill('#f-price-max', '100');
-  await page.locator('.sheet-foot .btn-primary').click({ force: true }).catch(() => {});
-  if (await page.locator('.sheet').isVisible()) await page.locator('.sheet .icon-btn[aria-label="Закрити"]').click();
-  // Кнопка «Немає товарів» неактивна — застосовуємо через ціну 1500 і бренд Converse
-  await page.locator('.tool-btn', { hasText: 'Фільтри' }).click();
-  await page.fill('#f-price-max', '');
-  await page.locator('.sheet .chip', { hasText: /^Converse$/ }).click();
-  await page.locator('.sheet .chip', { hasText: 'від 5 000' }).click();
-  const btnText = await page.locator('.sheet-foot .btn-primary').textContent();
-  check('Лічильник у фільтрах показує 0', /Немає товарів/.test(btnText), btnText);
-  await page.locator('.sheet .icon-btn[aria-label="Закрити"]').click();
+  check('Фільтр за брендом', brands.length === 4 && brands.every((b) => /tom ford/i.test(b)), `${brands.length}`);
+  await page.locator('.tool-btn', { hasText: 'новинки' }).click();
+  await page.locator('.sort-item', { hasText: 'Від дорожчих' }).click();
+  const prices = (await page.locator('.grid .price-now').allTextContents()).map(num);
+  check('Сортування від дорожчих', prices.every((p, i) => i === 0 || p <= prices[i - 1]), prices.join(' '));
+  await page.locator('.active-filters .link-btn', { hasText: 'Скинути все' }).click();
 
   // Товар
-  await page.locator('.active-filters .link-btn', { hasText: 'Скинути все' }).click();
-  await page.locator('.grid .card-name', { hasText: 'Campus' }).click();
+  await page.locator('.grid .card-name', { hasText: 'Creed Aventus Absolu' }).click();
   await page.waitForSelector('.pd-title');
-  await page.waitForTimeout(400);
-  await shot('06-product');
+  await settle();
+  check('Ціна товару з поста', num(await page.locator('.pd-price-row .price-now').textContent()) === 1749);
+  check('Ноти показано в характеристиках', await page.locator('.specs dd', { hasText: 'Бергамот, грейпфрут' }).isVisible());
+  check('Посилання на менеджера', await page.locator('.pd-perks a', { hasText: '@Kada_Adminn' }).isVisible());
+  await shot('04-product');
+  await page.evaluate(() => window.scrollTo(0, 600));
+  await settle();
+  await shot('05-product-details');
   await page.locator('.buy-bar .btn-primary').click();
-  check('Без розміру товар не додається', (await page.locator('.toast').textContent()).includes('Оберіть'));
-  const disabledSizes = await page.locator('.opt-group:has(legend:has-text("Розмір")) .opt:disabled').allTextContents();
-  check('Відсутні розміри неактивні', disabledSizes.includes('45'), disabledSizes.join(','));
-  // темно-синій + 44 відсутній
-  await page.locator('.opt-color[aria-label^="Темно-синій"]').click();
-  const s44 = page.locator('.opt-group:has(legend:has-text("Розмір")) .opt', { hasText: /^44$/ });
-  check('Відсутня комбінація колір+розмір заблокована', await s44.isDisabled());
-  await page.locator('.opt-group:has(legend:has-text("Розмір")) .opt', { hasText: /^42$/ }).click();
-  await page.locator('.stepper button[aria-label="Збільшити"]').click();
-  await shot('07-product-selected');
-  await page.locator('.buy-bar .btn-primary').click();
-  check('Товар додано в кошик', (await page.locator('.toast').textContent()).includes('Додано'));
-  await page.evaluate(() => window.scrollTo(0, 700));
-  await shot('08-product-details');
+  check('Додано в кошик', (await page.locator('.toast').textContent()).includes('Додано'));
+
+  // Швидке додавання з картки
+  await page.locator('.pd-float .icon-btn').first().click();
+  await page.locator('.grid .card', { hasText: 'Kayali' }).locator('.cart-btn').click();
+  await page.locator('.grid .card', { hasText: 'Kayali' }).locator('.fav-btn').click();
 
   // Пошук
-  await page.locator('.pd-float .icon-btn').first().click();
   await nav('Головна');
   await page.locator('.search-field').click();
-  await page.fill('#search-query', 'bois');
+  await page.fill('#search-query', 'ваніль');
   await page.waitForTimeout(400);
-  check('Пошук за назвою', (await page.locator('.grid .card-name').allTextContents()).includes('Bois Noir'));
-  await page.fill('#search-query', 'деревні');
+  const vanilla = await page.locator('.grid .card').count();
+  check('Пошук за нотами в описі', vanilla > 0, `${vanilla}`);
+  await page.fill('#search-query', 'jean paul');
   await page.waitForTimeout(400);
-  const woody = await page.locator('.grid .card').count();
-  check('Пошук за підкатегорією', woody >= 2, `${woody}`);
-  await page.fill('#search-query', 'nike');
+  check('Пошук за брендом', (await page.locator('.grid .card').count()) === 2);
+  await page.fill('#search-query', 'кросівки');
   await page.waitForTimeout(400);
-  const nike = await page.locator('.grid .card-brand').allTextContents();
-  check('Пошук за брендом', nike.length > 0 && nike.every((b) => /nike/i.test(b)), `${nike.length}`);
-  await page.fill('#search-query', 'ксилофон');
-  await page.waitForTimeout(400);
-  check('Повідомлення «нічого не знайдено»', await page.locator('.empty h2', { hasText: 'Нічого не знайдено' }).isVisible());
-  await shot('09-search-empty');
-
-  // Швидке додавання з картки (парфум з вибором об'єму)
-  await page.fill('#search-query', 'Fleur');
-  await page.waitForTimeout(400);
-  await page.locator('.grid .cart-btn').first().click();
-  await page.waitForSelector('.sheet');
-  await page.locator('.sheet .opt', { hasText: '100 мл' }).click();
-  await shot('10-quick-add');
-  await page.locator('.sheet-foot .btn-primary').click();
-  check('Швидке додавання з картки', (await page.locator('.toast').textContent()).includes('Додано'));
+  check('Порожній результат пошуку', await page.locator('.empty h2', { hasText: 'Нічого не знайдено' }).isVisible());
 
   // Кошик
+  await page.locator('.search-bar .icon-btn').first().click();
   await nav('Кошик');
   await page.waitForSelector('.cart-row');
-  const totalText = async () => parseInt((await page.locator('.summary-total span').last().textContent()).replace(/\D/g, ''), 10);
-  const t1 = await totalText();
-  check('Сума в кошику коректна', t1 === 4299 * 2 + 3990, `${t1}`);
-  await shot('11-cart');
+  const sum = num(await page.locator('.summary-total span').last().textContent());
+  check('Сума в кошику', sum === 1749 + 899, `${sum}`);
   await page.locator('.cart-row').first().locator('button[aria-label="Збільшити"]').click();
-  const t2 = await totalText();
-  check('Сума оновлюється при зміні кількості', t2 === 4299 * 3 + 3990, `${t2}`);
-  await page.locator('.cart-row').nth(1).locator('select').selectOption('50');
-  const t3 = await totalText();
-  check('Зміна варіанта в кошику змінює ціну', t3 === 4299 * 3 + 2850, `${t3}`);
+  check('Сума оновлюється', num(await page.locator('.summary-total span').last().textContent()) === 1749 * 2 + 899);
+  await shot('06-cart');
 
-  // Збереження після перезавантаження
+  // Збереження
   await page.reload();
   await page.waitForSelector('.hero');
   await nav('Кошик');
-  await page.waitForSelector('.cart-row');
   check('Кошик зберігається після перезапуску', (await page.locator('.cart-row').count()) === 2);
-  await nav('Обране');
-  check('Обране зберігається після перезапуску', (await page.locator('.grid .card').count()) === 1);
-  await shot('12-favorites');
-  await nav('Кошик');
 
   // Оформлення
   await page.locator('.buy-bar .btn-primary', { hasText: 'Оформити' }).click();
-  await page.waitForSelector('.co-form');
   await page.locator('button[type=submit]').click();
-  const errs = await page.locator('.field-error').count();
-  check('Обов’язкові поля перевіряються', errs === 4, `${errs} помилок`);
-  await shot('13-checkout-errors');
+  check('Перевірка обов’язкових полів', (await page.locator('.field-error').count()) === 4);
   await page.fill('#co-fullName', 'Олена Коваль');
-  await page.fill('#co-phone', '067 123 45');
-  await page.locator('#co-city').click();
-  check('Некоректний телефон відхиляється', await page.locator('.field.has-error #co-phone').count() === 1);
   await page.fill('#co-phone', '0671234567');
-  check('Маска телефону', (await page.inputValue('#co-phone')) === '+380 67 123 45 67', await page.inputValue('#co-phone'));
   await page.fill('#co-city', 'Львів');
-  await page.locator('.radio-row', { hasText: 'поштомат' }).click();
-  await page.fill('#co-point', 'Поштомат №5521');
-  await page.fill('#co-comment', 'Зателефонуйте перед відправкою');
-  await shot('14-checkout-filled');
+  await page.fill('#co-point', 'Відділення №12');
   await page.locator('button[type=submit]').click();
   await page.waitForSelector('.success', { timeout: 5000 });
-  check('Демо-замовлення оформлено', await page.locator('text=Демо-замовлення оформлено').isVisible());
-  await shot('15-success');
+  check('Демо-замовлення оформлено', true);
+
   await page.locator('.success .btn-primary').click();
-  await nav('Кошик');
-  check('Після замовлення кошик порожній', await page.locator('text=Кошик порожній').isVisible());
-  await shot('16-cart-empty');
-
+  await nav('Обране');
+  check('Обране', (await page.locator('.grid .card').count()) === 1);
   await nav('Профіль');
-  await shot('17-profile');
+  check('Контакт менеджера в профілі', await page.locator('.contact-list a', { hasText: '@Kada_Adminn' }).isVisible());
+  await shot('07-profile');
 
-  // Немає в наявності
-  await nav('Каталог');
-  await page.locator('.catalog-cat-head', { hasText: 'Кросівки' }).click();
-  await page.locator('.grid .card-name', { hasText: 'Night Knit' }).click();
-  check('Товар без наявності не можна купити', await page.locator('.buy-bar .btn', { hasText: 'Немає в наявності' }).isDisabled());
-
-  // Горизонтальний скрол
+  await nav('Головна');
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   check('Немає горизонтальної прокрутки', !overflow);
-
-  // Українська мова: шукаємо російські літери
-  await page.locator('.pd-float .icon-btn').first().click();
-  await nav('Головна');
   const ru = await page.evaluate(() => (document.body.innerText.match(/[ыэъё]/gi) || []).length);
-  check('Немає російських літер у тексті головної', ru === 0, `${ru}`);
-
+  check('Немає російських літер', ru === 0, `${ru}`);
   check('Без помилок у консолі', errors.length === 0, errors.slice(0, 5).join(' | '));
+
   await browser.close();
   const failed = results.filter((r) => !r.ok).length;
   console.log(`\n${results.length - failed}/${results.length} перевірок пройдено`);

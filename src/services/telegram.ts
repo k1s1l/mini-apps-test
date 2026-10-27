@@ -31,6 +31,8 @@ interface TgWebApp {
   disableVerticalSwipes?(): void;
   isVersionAtLeast?(v: string): boolean;
   BackButton: TgButton;
+  openTelegramLink?(url: string): void;
+  openLink?(url: string): void;
   HapticFeedback?: {
     impactOccurred(style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft'): void;
     notificationOccurred(type: 'error' | 'success' | 'warning'): void;
@@ -100,6 +102,16 @@ export const telegram = {
       b.onClick(onClick);
     } else b.hide();
     return () => b.offClick(onClick);
+  },
+  /** Відкриває посилання t.me всередині Telegram; у браузері — у новій вкладці. */
+  openLink(url: string) {
+    try {
+      if (webApp && /^https:\/\/t\.me\//.test(url) && webApp.openTelegramLink) return webApp.openTelegramLink(url);
+      if (webApp?.openLink) return webApp.openLink(url);
+    } catch {
+      /* падаємо на звичайне відкриття */
+    }
+    window.open(url, '_blank', 'noopener');
   },
   haptic(kind: 'light' | 'success' | 'error' | 'select' = 'light') {
     const h = webApp?.HapticFeedback;

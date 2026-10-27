@@ -30,7 +30,10 @@ interface Props {
 
 export function ProductBrowser({ products, optionGroups, initialFilters, emptyTitle, emptyText, header }: Props) {
   const [filters, setFilters] = useState<Filters>({ ...emptyFilters(), ...initialFilters });
-  const [sort, setSort] = useState<SortKey>('popular');
+  // Якщо популярність не задана (усі нулі) — за замовчуванням показуємо новинки.
+  const [sort, setSort] = useState<SortKey>(() =>
+    products.some((p) => p.popularity !== products[0]?.popularity) ? 'popular' : 'new',
+  );
   const [sheet, setSheet] = useState<'filters' | 'sort' | null>(null);
 
   const facets = useMemo(() => facetValues(products, optionGroups), [products, optionGroups]);

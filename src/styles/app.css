@@ -463,6 +463,99 @@ select {
   }
 }
 
+/* Заглушка, поки немає фото товару */
+.pimg.is-empty {
+  background: radial-gradient(120% 90% at 50% 0%, #2b2924 0%, #1a1917 55%, #131312 100%);
+}
+.pimg-plate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12% 10%;
+  text-align: center;
+  color: var(--text);
+}
+.pimg-plate::before {
+  content: '';
+  position: absolute;
+  inset: 7%;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: calc(var(--r-md) - 6px);
+  pointer-events: none;
+}
+.pimg-brand {
+  font-size: clamp(9px, 2.6vw, 11px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.pimg-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(13px, 4vw, 20px);
+  line-height: 1.15;
+  text-wrap: balance;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pimg-soon {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+.co-thumb .pimg-plate > *,
+.qa-img .pimg-soon,
+.cart-row-img .pimg-soon,
+.catalog-cat-img .pimg-soon {
+  display: none;
+}
+.cart-row-img .pimg-name,
+.qa-img .pimg-name,
+.catalog-cat-img .pimg-name {
+  font-size: 12px;
+}
+.pd-slide.is-empty .pimg-name {
+  font-size: 30px;
+  max-width: 16ch;
+}
+.pd-slide.is-empty .pimg-brand {
+  font-size: 13px;
+}
+.hero.is-plain {
+  aspect-ratio: auto;
+  min-height: 250px;
+  background: radial-gradient(130% 120% at 85% 0%, #3a352b 0%, #1c1b18 50%, #121211 100%);
+}
+.hero.is-plain .hero-shade {
+  display: none;
+}
+.pd-desc {
+  white-space: pre-line;
+}
+.pd-perks a,
+.contact-list a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+.contact-list a {
+  margin-left: auto;
+}
+.info-link {
+  width: 100%;
+  text-align: left;
+}
+.info-link p {
+  flex: 1;
+}
+
 /* ───── Картка товару ───── */
 .grid {
   display: grid;
