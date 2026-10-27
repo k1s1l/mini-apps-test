@@ -25,7 +25,7 @@ const perfume = (p: Draft): Product => ({
 export const catalogProducts: Product[] = [
   perfume({
     id: 'armani-stronger-with-you-powerfully',
-    images: ['armani-stronger-with-you-powerfully'],
+    images: ['armani-stronger-with-you-powerfully', 'armani-stronger-with-you-powerfully-2'],
     subcategoryIds: ['men'],
     brand: 'Armani',
     name: 'Armani Stronger With You Powerfully',
@@ -44,6 +44,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'tom-ford-ombre-leather',
+    images: ['tom-ford-ombre-leather'],
     subcategoryIds: ['men'],
     brand: 'Tom Ford',
     name: 'Tom Ford Ombre Leather',
