@@ -25,13 +25,19 @@ const perfume = (p: Draft): Product => ({
 export const catalogProducts: Product[] = [
   perfume({
     id: 'armani-stronger-with-you-powerfully',
-    subcategoryIds: [],
+    images: ['armani-stronger-with-you-powerfully'],
+    subcategoryIds: ['men'],
     brand: 'Armani',
     name: 'Armani Stronger With You Powerfully',
     shortDescription: 'Вишня, мандарин · спеції, лаванда · каштан, ваніль',
     description: 'Новинка 2026 року. Вони повертаються!',
     price: 999,
-    attributes: notes('Вишня, мандарин', 'Спеції, лаванда', 'Каштан, амбервуд, ваніль'),
+    attributes: [
+      // З упаковки на фото: Eau de Parfum pour Homme, 100 ml
+      { label: 'Тип', value: 'Парфумована вода (EDP), чоловіча' },
+      { label: "Об'єм", value: '100 мл' },
+      ...notes('Вишня, мандарин', 'Спеції, лаванда', 'Каштан, амбервуд, ваніль'),
+    ],
     stock: 'in_stock',
     tags: ['new'],
     addedAt: '2026-10-17T12:34',
@@ -240,6 +246,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'jpg-ultra-male',
+    images: ['jpg-ultra-male'],
     subcategoryIds: ['men'],
     brand: 'Jean Paul Gaultier',
     name: 'Jean Paul Gaultier Ultra Male',
@@ -260,6 +267,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'lacoste-l1212-noir-intense',
+    images: ['lacoste-l1212-noir-intense'],
     subcategoryIds: ['men', 'woody'],
     brand: 'Lacoste',
     name: 'Lacoste Eau De L.12.12. Noir Intense',
@@ -279,20 +287,25 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'eros-flame',
+    images: ['eros-flame'],
     subcategoryIds: [],
-    // У пості бренд не вказано; Eros Flame — аромат Versace. Уточнити у власника.
+    // Бренд та об'єм — з упаковки на фото (Versace Eros Flame, EDP, 100 ml).
     brand: 'Versace',
-    name: 'Eros Flame',
-    shortDescription: 'Знову в наявності',
+    name: 'Versace Eros Flame',
+    shortDescription: 'Парфумована вода, 100 мл',
     description: 'Знову в наявності.',
     price: 1199,
-    attributes: [],
+    attributes: [
+      { label: 'Тип', value: 'Парфумована вода (EDP)' },
+      { label: "Об'єм", value: '100 мл' },
+    ],
     stock: 'in_stock',
     tags: [],
     addedAt: '2026-10-26T11:37',
   }),
   perfume({
     id: 'dior-sauvage-edp',
+    images: ['dior-sauvage-edp'],
     subcategoryIds: [],
     brand: 'Dior',
     name: 'Dior Sauvage EDP',
