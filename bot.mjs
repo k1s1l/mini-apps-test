@@ -22,10 +22,9 @@ export function startBot() {
     return;
   }
   const url = webAppUrl();
-  if (!url || !url.startsWith('https://')) {
-    console.log('Бот: немає HTTPS-адреси магазину. Згенеруйте домен у Railway або задайте WEBAPP_URL');
-    return;
-  }
+  const hasUrl = Boolean(url && url.startsWith('https://'));
+  if (!hasUrl)
+    console.log('Бот: немає HTTPS-адреси магазину. Згенеруйте домен у Railway (Settings → Networking) і зробіть Redeploy');
 
   const call = async (method, body) => {
     const res = await fetch(`${API_BASE}/bot${token}/${method}`, {
@@ -45,6 +44,14 @@ export function startBot() {
     const msg = update.message;
     if (!msg?.text || msg.chat?.type !== 'private') return;
     const text = msg.text.trim();
+    console.log(`Бот: повідомлення «${text.slice(0, 20)}» від чату ${msg.chat.id}`);
+    if (!hasUrl) {
+      await call('sendMessage', {
+        chat_id: msg.chat.id,
+        text: 'Магазин ще налаштовується: у сервера немає публічної адреси. Спробуйте трохи пізніше.',
+      });
+      return;
+    }
     if (text.startsWith('/start') || text.startsWith('/shop')) {
       await call('sendMessage', {
         chat_id: msg.chat.id,
@@ -70,6 +77,11 @@ export function startBot() {
   async function setup() {
     // Polling не працює одночасно з вебхуком — вимикаємо його, якщо був.
     await call('deleteWebhook', { drop_pending_updates: false });
+    const me = await call('getMe');
+    if (!hasUrl) {
+      console.log(`Бот: @${me.username} працює без кнопки магазину (немає домену)`);
+      return;
+    }
     await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'Магазин', web_app: { url } } });
     await call('setMyCommands', {
       commands: [
@@ -77,7 +89,6 @@ export function startBot() {
         { command: 'help', description: 'Допомога' },
       ],
     });
-    const me = await call('getMe');
     console.log(`Бот: @${me.username} запущено, магазин ${url}`);
   }
 
