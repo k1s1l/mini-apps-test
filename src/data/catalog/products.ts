@@ -151,6 +151,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'creed-aventus-absolu',
+    images: ['creed-aventus-absolu'],
     subcategoryIds: ['men', 'woody'],
     brand: 'Creed',
     name: 'Creed Aventus Absolu',
@@ -173,23 +174,25 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'versace-eros',
+    images: ['versace-eros'],
     subcategoryIds: ['men', 'fresh'],
     brand: 'Versace',
     name: 'Versace Eros',
     shortDescription: 'М’ята, лимон, зелене яблуко · боби тонка · ваніль, кедр',
     description: 'Аромат для впевнених у собі чоловіків, які хочуть пахнути свіжо та мужньо кожного дня.',
     price: 1249,
-    attributes: notes(
-      'М’ята, італійський лимон, зелене яблуко',
-      'Боби тонка, герань, амброксан',
-      'Ваніль, ветивер, кедр, дубовий мох',
-    ),
+    attributes: [
+      // З упаковки на фото: Parfum
+      { label: 'Тип', value: 'Parfum' },
+      ...notes('М’ята, італійський лимон, зелене яблуко', 'Боби тонка, герань, амброксан', 'Ваніль, ветивер, кедр, дубовий мох'),
+    ],
     stock: 'in_stock',
     tags: [],
     addedAt: '2026-10-23T12:19',
   }),
   perfume({
     id: 'tom-ford-black-lacquer',
+    images: ['tom-ford-black-lacquer'],
     subcategoryIds: ['men', 'woody'],
     brand: 'Tom Ford',
     name: 'Tom Ford Black Lacquer',
@@ -198,6 +201,9 @@ export const catalogProducts: Product[] = [
       'Ідеальний аромат на холодну пору, запах справжнього чоловіка, з яким ви отримаєте купу компліментів.',
     price: 1149,
     attributes: [
+      // З упаковки на фото: Eau de Parfum, 100 ml
+      { label: 'Тип', value: 'Парфумована вода (EDP)' },
+      { label: "Об'єм", value: '100 мл' },
       { label: 'Тип аромату', value: 'Деревні, східні' },
       ...notes('Вініл, ром, чорний перець, чорнило', 'Абрикос, ебенове дерево, елемі, півонія', 'Олібанум'),
     ],
@@ -207,6 +213,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'tom-ford-fucking-fabulous',
+    images: ['tom-ford-fucking-fabulous'],
     subcategoryIds: [],
     brand: 'Tom Ford',
     name: 'Tom Ford Fucking Fabulous',
@@ -214,6 +221,9 @@ export const catalogProducts: Product[] = [
     description: 'Аромат, від якого пахне грошима та впевненістю.',
     price: 999,
     attributes: [
+      // З упаковки на фото: Eau de Parfum, 100 ml
+      { label: 'Тип', value: 'Парфумована вода (EDP)' },
+      { label: "Об'єм", value: '100 мл' },
       { label: 'Тип аромату', value: 'Шкіряні' },
       ...notes(
         'Лаванда, мускатна шавлія',
@@ -228,6 +238,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'jpg-le-male-elixir',
+    images: ['jpg-le-male-elixir'],
     subcategoryIds: ['sweet'],
     brand: 'Jean Paul Gaultier',
     name: 'Jean Paul Gaultier Le Male Elixir',
