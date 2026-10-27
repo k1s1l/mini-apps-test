@@ -54,6 +54,13 @@ railway up          # завантажити й зібрати
 railway domain      # отримати https-адресу
 ```
 
+## Бот
+
+`bot.mjs` запускається разом із сайтом, якщо в Railway задано `BOT_TOKEN`.
+Бот відповідає на `/start` кнопкою «Відкрити магазин» і сам встановлює кнопку меню.
+Адресу магазину бере з домену Railway (`RAILWAY_PUBLIC_DOMAIN`) або зі змінної `WEBAPP_URL`.
+Токен використовується лише на сервері й не потрапляє ні в браузер, ні в логи.
+
 ## Як підключити до Telegram
 
 1. Розмістіть вміст `dist/` на будь-якому HTTPS-хостингу (Vercel, Netlify, Cloudflare Pages, GitHub Pages тощо). Telegram відкриває Mini App лише за HTTPS.
