@@ -7,8 +7,8 @@ export const shopConfig = {
   currency: '₴',
   contacts: {
     phone: '' as string,
-    /** Менеджер для замовлень (з постів каналу). */
-    telegram: '@Kada_Adminn' as string,
+    /** Менеджер для замовлень у Telegram, наприклад '@username'. Порожньо — не показується. */
+    telegram: '' as string,
     email: '' as string,
     hours: '' as string,
   },

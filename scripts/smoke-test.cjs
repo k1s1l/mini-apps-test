@@ -74,7 +74,7 @@ const num = (t) => parseInt(String(t).replace(/\D/g, ''), 10);
   await settle();
   check('Ціна товару з поста', num(await page.locator('.pd-price-row .price-now').textContent()) === 1749);
   check('Ноти показано в характеристиках', await page.locator('.specs dd', { hasText: 'Бергамот, грейпфрут' }).isVisible());
-  check('Посилання на менеджера', await page.locator('.pd-perks a', { hasText: '@Kada_Adminn' }).isVisible());
+  check('Менеджера на сторінці товару немає', (await page.locator('.pd-perks', { hasText: 'менеджеру' }).count()) === 0);
   await shot('04-product');
   await page.evaluate(() => window.scrollTo(0, 600));
   await settle();
@@ -133,7 +133,7 @@ const num = (t) => parseInt(String(t).replace(/\D/g, ''), 10);
   await nav('Обране');
   check('Обране', (await page.locator('.grid .card').count()) === 1);
   await nav('Профіль');
-  check('Контакт менеджера в профілі', await page.locator('.contact-list a', { hasText: '@Kada_Adminn' }).isVisible());
+  check('Менеджера в профілі немає', (await page.locator('.contact-list').count()) === 0);
   await shot('07-profile');
 
   await nav('Головна');
