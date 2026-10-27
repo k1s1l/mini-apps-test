@@ -44,7 +44,7 @@ export const catalogProducts: Product[] = [
   }),
   perfume({
     id: 'tom-ford-ombre-leather',
-    images: ['tom-ford-ombre-leather'],
+    images: ['tom-ford-ombre-leather-box', 'tom-ford-ombre-leather'],
     subcategoryIds: ['men'],
     brand: 'Tom Ford',
     name: 'Tom Ford Ombre Leather',
@@ -52,7 +52,11 @@ export const catalogProducts: Product[] = [
     description:
       'Поновили наявність. Аромат справжнього чоловіка, який не залишить вас без уваги оточуючих.',
     price: 1299,
-    attributes: [],
+    attributes: [
+      // З упаковки на фото: Eau de Parfum, 100 ml
+      { label: 'Тип', value: 'Парфумована вода (EDP)' },
+      { label: "Об'єм", value: '100 мл' },
+    ],
     stock: 'in_stock',
     tags: [],
     addedAt: '2026-10-18T10:35',
