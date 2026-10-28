@@ -61,10 +61,39 @@ JOBS = {
   'belt': ('pool/product_Belt.jpeg', 'cover', True),
   'sunglasses': ('pool/product_Sunglasses.jpg', 'cover', True),
   'cap': ('pool/product_hat.jpg', 'cover', True),
+  # Живі студійні фото одягу (Magento Luma sample data)
+  'puffer-black-1': ('magento2-sample-data/pub/media/catalog/product/m/j/mj03-black_main.jpg', 'torso', True),
+  'puffer-black-2': ('magento2-sample-data/pub/media/catalog/product/m/j/mj03-black_alt1.jpg', 'cover', False),
+  'puffer-black-3': ('magento2-sample-data/pub/media/catalog/product/m/j/mj03-black_back.jpg', 'torso', True),
+  'softshell-black': ('magento2-sample-data/pub/media/catalog/product/m/j/mj07-black_main.jpg', 'torso', True),
+  'track-blue-1': ('magento2-sample-data/pub/media/catalog/product/m/j/mj06-blue_main.jpg', 'torso', True),
+  'track-blue-2': ('magento2-sample-data/pub/media/catalog/product/m/j/mj06-blue_alt1.jpg', 'cover', False),
+  'track-blue-3': ('magento2-sample-data/pub/media/catalog/product/m/j/mj06-blue_back.jpg', 'torso', True),
+  'puffer-women-blue': ('magento2-sample-data/pub/media/catalog/product/w/j/wj06-blue_main.jpg', 'torso', True),
+  'hoodie-black-1': ('magento2-sample-data/pub/media/catalog/product/m/h/mh02-black_main.jpg', 'torso', True),
+  'hoodie-black-2': ('magento2-sample-data/pub/media/catalog/product/m/h/mh02-black_alt1.jpg', 'cover', False),
+  'hoodie-black-3': ('magento2-sample-data/pub/media/catalog/product/m/h/mh02-black_back.jpg', 'torso', True),
+  'hoodie-olive-1': ('magento2-sample-data/pub/media/catalog/product/m/h/mh08-brown_main.jpg', 'torso', True),
+  'hoodie-olive-2': ('magento2-sample-data/pub/media/catalog/product/m/h/mh08-brown_alt1.jpg', 'cover', False),
+  'hoodie-olive-3': ('magento2-sample-data/pub/media/catalog/product/m/h/mh08-brown_back.jpg', 'torso', True),
+  'hoodie-women-blue': ('magento2-sample-data/pub/media/catalog/product/w/h/wh10-blue_main.jpg', 'torso', True),
+  'zip-hoodie-black-1': ('magento2-sample-data/pub/media/catalog/product/m/h/mh03-black_main.jpg', 'torso', True),
+  'zip-hoodie-black-2': ('magento2-sample-data/pub/media/catalog/product/m/h/mh03-black_alt1.jpg', 'cover', False),
+  'zip-hoodie-black-3': ('magento2-sample-data/pub/media/catalog/product/m/h/mh03-black_back.jpg', 'torso', True),
 }
 
 def square(im, mode):
     w, h = im.size
+    if mode == 'torso':
+        # Фото в повний зріст: квадрат від голови до стегон, щоб одяг був крупніше
+        bgc = im.getpixel((2, 2))
+        diff = ImageChops.difference(im, Image.new('RGB', im.size, bgc)).convert('L').point(lambda v: 255 if v > 18 else 0)
+        l, t, r, b = diff.getbbox() or (0, 0, w, h)
+        side = min(int((r - l) * 1.35), b - t + 40, h, w)
+        cx = (l + r) // 2
+        left = max(0, min(cx - side // 2, w - side))
+        top = max(0, min(t - int(side * 0.04), h - side))
+        return im.crop((left, top, left + side, top + side))
     if mode == 'cover':
         s = min(w, h); l = (w - s) // 2; t = (h - s) // 2
         return im.crop((l, t, l + s, t + s))
@@ -73,19 +102,24 @@ def square(im, mode):
     diff = ImageChops.difference(im, Image.new('RGB', im.size, bgc)).convert('L').point(lambda v: 255 if v > 18 else 0)
     box = diff.getbbox() or (0, 0, w, h)
     im = im.crop(box); w, h = im.size
-    s = int(max(w, h) * 1.22)
+    s = int(max(w, h) * (1.06 if h > w * 1.1 else 1.22))
     bg = Image.new('RGB', (s, s), bgc)
     bg.paste(im, ((s - w) // 2, (s - h) // 2))
     return bg
 
 os.makedirs(OUT, exist_ok=True)
+ONLY = set(sys.argv[3:])  # необов'язково: обробити лише вказані ключі
 for key, (path, mode, tint) in JOBS.items():
+    if ONLY and key not in ONLY:
+        continue
     im = Image.open(os.path.join(SRC, path)).convert('RGB')
     im = square(im, mode).resize((720, 720), Image.LANCZOS)
     if tint:
         im = ImageChops.multiply(im, Image.new('RGB', im.size, TONE))
     im.save(os.path.join(OUT, key + '.jpg'), quality=78, optimize=True, progressive=True)
 
+if ONLY:
+    sys.exit(0)
 # Банер: широкий кадр
 hero = Image.open(os.path.join(SRC, 'pool/xavier-teo-469050-unsplash.jpg')).convert('RGB')
 w, h = hero.size; nh = int(w * 0.75); t = int((h - nh) * 0.55)
