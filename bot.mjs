@@ -104,7 +104,13 @@ export function startBot() {
           await handle(u).catch((e) => console.error('Бот:', e.message));
         }
       } catch (e) {
-        console.error('Бот:', e.message);
+        if (/Unauthorized/i.test(e.message)) {
+          // Токен відкликано або замінено — далі пробувати марно. Новий деплой стартує з новим токеном.
+          console.error('Бот: токен недійсний (його замінили або відкликали). Бот зупинено в цьому деплої.');
+          return;
+        }
+        if (/Conflict/i.test(e.message)) console.error('Бот: цей токен уже використовує інший запущений бот (старий деплой або інший проєкт). Чекаю…');
+        else console.error('Бот:', e.message);
         // 409 — бот уже запущено в іншому місці (наприклад, у старому деплої); чекаємо довше.
         await new Promise((r) => setTimeout(r, delay));
         delay = Math.min(delay * 2, 30000);
