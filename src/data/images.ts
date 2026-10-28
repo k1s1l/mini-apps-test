@@ -3,7 +3,8 @@
 // Повний URL (https://…) повертається без змін — так можна підключити фото
 // зі сховища або CDN, коли з'явиться справжній каталог.
 
-const local = import.meta.glob('../assets/catalog/*.{jpg,jpeg,png,webp}', {
+// Фото реального каталогу та демо-фото мультикаталогу. Імена файлів не перетинаються.
+const local = import.meta.glob(['../assets/catalog/*.{jpg,jpeg,png,webp}', './demo/images/*.{jpg,jpeg,png,webp}'], {
   eager: true,
   import: 'default',
 }) as Record<string, string>;

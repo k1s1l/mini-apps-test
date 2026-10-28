@@ -56,7 +56,7 @@ export function startBot() {
       await call('sendMessage', {
         chat_id: msg.chat.id,
         text:
-          'Вітаємо! 👋\n\nУсі наші аромати в одному каталозі: фото, ціни та ноти. ' +
+          'Вітаємо! 👋\n\nУвесь асортимент в одному каталозі: фото, ціни та наявність. ' +
           'Натисніть кнопку нижче, щоб відкрити магазин.',
         reply_markup: { inline_keyboard: [[openButton]] },
       });

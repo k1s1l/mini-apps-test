@@ -10,6 +10,7 @@ import { FavoritesScreen, ProfileScreen, SuccessScreen } from './screens/OtherSc
 import { ProductScreen } from './screens/ProductScreen';
 import { SearchScreen } from './screens/SearchScreen';
 import { telegram } from './services/telegram';
+import { shopConfig } from './config/shop';
 import { useCatalog } from './store/catalog';
 import { useNav, useRoute, type Route } from './store/nav';
 import { useToast } from './store/toast';
@@ -93,7 +94,7 @@ function LoadingScreen() {
       <div className="home-bar">
         <div className="logo">
           <span className="logo-mark">КРАМ</span>
-          <span className="logo-sub">мультикаталог</span>
+          <span className="logo-sub">{shopConfig.subtitle}</span>
         </div>
         <Icon name="search" />
       </div>

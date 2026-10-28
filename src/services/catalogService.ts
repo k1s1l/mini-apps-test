@@ -1,13 +1,13 @@
-// Джерело каталогу. Зараз — локальний файл з товарами з Telegram-каналу.
+// Джерело каталогу. Зараз — локальні файли; який каталог показувати,
+// визначає VITE_CATALOG (див. src/config/shop.ts).
 // Щоб підключити сервер, замініть тіло loadCatalog на запит до API
 // (наприклад, fetch(`${API_URL}/catalog`)), який повертає об'єкт типу Catalog.
 
 import type { Catalog, Category, Product } from '../data/types';
 import { demoCategories } from '../data/demo/categories';
+import { demoProducts } from '../data/demo/products';
 import { catalogProducts } from '../data/catalog/products';
-
-// Структура категорій спільна; фото категорій беруться з товарів.
-const baseCategories: Category[] = demoCategories.map((c) => ({ ...c, image: '' }));
+import { activeCatalog, shopConfig } from '../config/shop';
 
 /** Прибирає категорії й підкатегорії, у яких немає жодного товару. */
 export function visibleCategories(categories: Category[], products: Product[]): Category[] {
@@ -26,7 +26,13 @@ export function visibleCategories(categories: Category[], products: Product[]): 
     .filter((c): c is Category => c !== null);
 }
 
+const sources: Record<typeof activeCatalog, { categories: Category[]; products: Product[] }> = {
+  multi: { categories: demoCategories, products: demoProducts },
+  // Структура категорій спільна; фото категорій беруться з товарів.
+  perfume: { categories: demoCategories.map((c) => ({ ...c, image: '' })), products: catalogProducts },
+};
+
 export async function loadCatalog(): Promise<Catalog> {
-  const products = catalogProducts;
-  return { categories: visibleCategories(baseCategories, products), products, isDemo: false };
+  const { categories, products } = sources[activeCatalog];
+  return { categories: visibleCategories(categories, products), products, isDemo: shopConfig.isDemo };
 }

@@ -21,7 +21,7 @@ export function HomeScreen() {
   const switchTab = useNav((s) => s.switchTab);
   const cartCount = useShop((s) => s.cart.reduce((n, i) => n + i.qty, 0));
 
-  const heroImg = imageUrl('hero');
+  const heroImg = imageUrl(shopConfig.hero.image);
   const single = categories.length === 1 ? categories[0] : undefined;
   const sections = useMemo(
     () => ({
@@ -44,7 +44,7 @@ export function HomeScreen() {
       <header className="home-bar">
         <div className="logo">
           <span className="logo-mark">КРАМ</span>
-          <span className="logo-sub">мультикаталог</span>
+          <span className="logo-sub">{shopConfig.subtitle}</span>
         </div>
         <div className="home-bar-actions">
           <button className="icon-btn" onClick={() => push({ name: 'search' })} aria-label="Пошук">
